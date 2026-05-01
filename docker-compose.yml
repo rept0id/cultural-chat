@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  django:
+    build: .
+    expose:
+      - "8000"
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:1.25-alpine
+    ports:
+      - "${PORT}:80"
+    volumes:
+      - ./static:/var/www/static:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - django
+    restart: unless-stopped

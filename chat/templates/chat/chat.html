@@ -1,0 +1,262 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat with {{ character.name }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: relative;
+        }
+
+        .app-header {
+            background-color: #000;
+            color: white;
+            padding: 15px 0;
+            width: 100vw;
+            margin-left: calc(-50vw + 50%);
+            position: relative;
+            left: 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .app-header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .app-header p {
+            margin: 5px 0 0;
+            font-size: 0.8rem;
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        .warning {
+            background-color: #fff8e1;
+            border-left: 4px solid #ffc107;
+            padding: 10px 15px;
+            margin: 10px;
+            font-size: 0.9rem;
+            color: #555;
+            text-align: center;
+        }
+
+        .character-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: #333;
+            cursor: pointer;
+            padding: 0 15px;
+            margin-left: -10px;
+        }
+
+        .character-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #ddd;
+            margin-right: -10px;
+        }
+
+        .chat-and-input-container {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        #chat-box {
+            flex: 1;
+            border: 1px solid #ccc;
+            padding: 10px;
+            overflow-y: auto;
+            background-color: white;
+            text-align: left;
+            min-height: 150px;
+        }
+
+        .input-container {
+            display: flex;
+            width: 100%;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-top: 1px solid #ccc;
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+        }
+
+        #message-input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button:not(.back-button) {
+            padding: 8px 15px;
+            white-space: nowrap;
+            background-color: #000;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-left: 10px;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                height: calc(100vh - env(safe-area-inset-bottom));
+            }
+
+            .app-header {
+                margin-left: -5px;
+                width: calc(100% + 10px);
+            }
+
+            .warning {
+                margin: 10px 5px;
+                font-size: 0.85rem;
+            }
+
+            .character-header {
+                padding: 10px 5px;
+            }
+
+            .back-button {
+                padding: 0 10px;
+                margin-left: -5px;
+            }
+
+            .character-image {
+                margin-right: -5px;
+            }
+
+            .input-container {
+                flex-direction: column;
+                padding: 8px 5px 15px;
+                bottom: env(safe-area-inset-bottom);
+            }
+
+            #message-input {
+                width: 100%;
+                margin-bottom: 8px;
+            }
+
+            button:not(.back-button) {
+                width: 100%;
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-header">
+        <h1>Cultural Chat</h1>
+        <p><i>by Kyriakh Athanasopoulou & Rantouan Achmet</i></p>
+    </div>
+
+    <div class="warning">
+        ⚠️ This is an AI tool. <br> Please talk responsibly and respectfully.
+    </div>
+
+    <div class="character-header">
+        <button class="back-button" onclick="window.location.href='/'">←</button>
+        <img src="{% static character.image %}" alt="{{ character.name }}" class="character-image">
+    </div>
+
+    <div class="chat-and-input-container">
+        <div id="chat-box"></div>
+        <div class="input-container">
+            <input type="text" id="message-input" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const characterId = {{ character.id }};
+        const chatBox = document.getElementById('chat-box');
+
+        let conversationId;
+
+        function addMessage(sender, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('message-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addMessage('You', message);
+            input.value = '';
+
+            try {
+                const response = conversationId ?
+                  await fetch(`/api/chat/${characterId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: `message=${encodeURIComponent(message)}&conversationId=${encodeURIComponent(conversationId)}`
+                  })
+                  :
+                  await fetch(`/api/chat/${characterId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: `message=${encodeURIComponent(message)}`
+                  });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    addMessage('System', `Error: ${data.error}`);
+                } else {
+                    addMessage(data.characterName, data.response);
+                    conversationId = data.conversationId;
+                }
+            } catch (error) {
+                addMessage('System', `Error: ${error.message}`);
+            }
+        }
+
+        document.getElementById('message-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>

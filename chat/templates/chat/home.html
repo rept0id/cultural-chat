@@ -1,0 +1,166 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Select a Character</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #f9f9f9;
+            padding-bottom: 60px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .app-header {
+            background-color: #000;
+            color: white;
+            padding: 15px 0;
+            width: 100vw;
+            margin-left: calc(-50vw + 50%);
+            position: relative;
+            left: 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .app-header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .app-header p {
+            margin: 5px 0 0;
+            font-size: 0.8rem;
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        .warning {
+            background-color: #fff8e1;
+            border-left: 4px solid #ffc107;
+            padding: 10px 15px;
+            margin: 15px 10px;
+            font-size: 0.9rem;
+            color: #555;
+            text-align: center;
+        }
+
+        .page-title {
+            text-align: center;
+            margin: 10px 0 15px;
+            font-size: 1.3rem;
+            color: #333;
+        }
+
+        .characters-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 0 10px;
+            flex: 1;
+        }
+
+        .character-card {
+            width: 150px;
+            margin: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .character-card:hover {
+            transform: scale(1.05);
+        }
+
+        .character-card img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #ddd;
+        }
+
+        .character-card p {
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .footer {
+            background-color: #000;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            margin-top: auto;
+            width: 100vw;
+            margin-left: calc(-50vw + 50%);
+            position: relative;
+            left: 0;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 600px) {
+            .app-header {
+                margin-left: -5px;
+                width: calc(100% + 10px);
+            }
+
+            .warning {
+                margin: 10px 5px;
+                font-size: 0.85rem;
+            }
+
+            .characters-container {
+                padding: 0 5px;
+            }
+
+            .character-card {
+                width: 45%;
+                margin: 8px;
+            }
+
+            .footer {
+                margin-left: -5px;
+                width: calc(100% + 10px);
+                bottom: 0px;
+                position: fixed;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-header">
+        <h1>Cultural Chat</h1>
+        <p><i>by Kyriakh Athanasopoulou & Rantouan Achmet</i></p>
+    </div>
+
+    <div class="warning">
+        ⚠️ This is an AI tool. <br> Please talk responsibly and respectfully.
+    </div>
+
+    <h2 class="page-title">Select a Character to Chat With</h2>
+
+    <div class="characters-container">
+        {% for character in characters %}
+        <div class="character-card" onclick="window.location.href='/chat/{{ character.id }}/'">
+            <img src="{% static character.image %}" alt="{{ character.name }}">
+            <p>{{ character.name }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
